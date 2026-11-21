@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>長者防跌評估問卷 (FES-I)</title>
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --border-color: #ced4da;
+            --font-size-base: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: var(--font-size-base);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        /* 頁首與控制項 */
+        .app-header {
+            background: #ffffff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .app-title h1 {
+            font-size: calc(var(--font-size-base) * 1.3);
+            color: #0f2537;
+            font-weight: 700;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .font-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .font-btn {
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .font-btn:hover {
+            background: #dee2e6;
+        }
+
+        .voice-master-btn {
+            background: #198754;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: calc(var(--font-size-base) * 0.95);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 3px 6px rgba(25, 135, 84, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .voice-master-btn:hover {
+            background: #157347;
+        }
+
+        .voice-master-btn.speaking {
+            background: #dc3545;
+            animation: btnPulse 1.5s infinite;
+        }
+
+        @keyframes btnPulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.6); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+
+        /* 選項閃爍引導特效 */
+        @keyframes optionFlash {
+            0% {
+                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.9);
+                border-color: #0d6efd;
+                background-color: #e7f1ff;
+                transform: scale(1.02);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(13, 110, 253, 0.2);
+                border-color: #0b5ed7;
+                background-color: #cfe2ff;
+                transform: scale(1.04);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+                border-color: #0d6efd;
+                background-color: #e7f1ff;
+                transform: scale(1.02);
+            }
+        }
+
+        .option-flashing {
+            animation: optionFlash 1s infinite !important;
+            border: 3px solid #0d6efd !important;
+            border-radius: 10px !important;
+        }
+
+        /* 卡片區塊 */
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .card-title {
+            font-size: calc(var(--font-size-base) * 1.2);
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+        }
+
+        .question-block {
+            margin-bottom: 25px;
+        }
+
+        .question-label {
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        /* 單選網格 */
+        .mcq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+        }
+
+        .mcq-card {
+            background-color: #f8f9fa;
+            border: 2px solid #ced4da;
+            border-radius: 10px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 120px;
+        }
+
+        .mcq-card:hover {
+            background-color: #e9ecef;
+        }
+
+        .mcq-card.selected {
+            background-color: #e7f1ff;
+            color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+        }
+
+        .mcq-icon {
+            font-size: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 50px;
+        }
+
+        .mcq-icon svg {
+            width: 48px;
+            height: 48px;
+        }
+
+        .mcq-text {
+            font-size: calc(var(--font-size-base) * 0.95);
+            font-weight: 600;
+        }
+
+        /* FES-I 量表項目 */
+        .fesi-item {
+            background: #fdfdfe;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .fesi-header {
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .fesi-options-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .fesi-opt-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #ced4da;
+            padding: 12px 8px;
+            border-radius: 8px;
+            font-size: calc(var(--font-size-base) * 0.9);
+            font-weight: 600;
+            color: #495057;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .fesi-opt-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .fesi-opt-btn.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+        }
+
+        /* 按鈕容器 */
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            font-size: calc(var(--font-size-base) * 1.1);
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #bb2d3b;
+        }
+
+        /* 治療師摘要頁面 */
+        #summaryView {
+            display: none;
+        }
+
+        .summary-box {
+            background: #fff;
+            border: 2px solid #0d6efd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .summary-val {
+            font-weight: 700;
+            color: #0f2537;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- 頁首 -->
+    <div class="app-header">
+        <div class="app-title">
+            <h1>長者防跌評估問卷 (FES-I)</h1>
+        </div>
+        <div class="header-controls">
+            <button class="voice-master-btn" id="voiceControlBtn" onclick="toggleVoiceGuide()">
+                <span id="voiceIcon">🔊</span> <span id="voiceBtnText">開始語音導引</span>
+            </button>
+            <div class="font-controls">
+                <span style="font-size: 14px; font-weight:600;">字體:</span>
+                <button class="font-btn" onclick="setFontSize('small')">中</button>
+                <button class="font-btn" onclick="setFontSize('medium')">大</button>
+                <button class="font-btn" onclick="setFontSize('large')">特大</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 問卷填寫頁面 -->
+    <div id="formView">
+        
+        <!-- 第一部分：基本狀況 -->
+        <div class="card">
+            <div class="card-title">第一部分：基本生活與步行狀況</div>
+            
+            <div class="question-block" id="qBlock-1">
+                <span class="question-label">1. 你目前與誰同住？</span>
+                <div class="mcq-grid" id="liveWithGroup">
+                    <div class="mcq-card" id="opt-1-1" onclick="selectMCQ('liveWithGroup', this, '獨居', 1)">
+                        <span class="mcq-icon">👤</span>
+                        <span class="mcq-text">獨居</span>
+                    </div>
+                    <div class="mcq-card" id="opt-1-2" onclick="selectMCQ('liveWithGroup', this, '與家人同住', 1)">
+                        <span class="mcq-icon">👨‍👩‍👧‍👦</span>
+                        <span class="mcq-text">與家人同住</span>
+                    </div>
+                    <div class="mcq-card" id="opt-1-3" onclick="selectMCQ('liveWithGroup', this, '與家傭同住', 1)">
+                        <span class="mcq-icon">🤝</span>
+                        <span class="mcq-text">與家傭同住</span>
+                    </div>
+                    <div class="mcq-card" id="opt-1-4" onclick="selectMCQ('liveWithGroup', this, '院舍居住', 1)">
+                        <span class="mcq-icon">🏥</span>
+                        <span class="mcq-text">院舍居住</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-block" id="qBlock-2">
+                <span class="question-label">2. 平時需要使用甚麼助行器？</span>
+                <div class="mcq-grid" id="aidGroup">
+                    <div class="mcq-card" id="opt-2-1" onclick="selectMCQ('aidGroup', this, '不需助行器', 2)">
+                        <span class="mcq-icon">🚶‍♂️</span>
+                        <span class="mcq-text">不需助行器</span>
+                    </div>
+                    <div class="mcq-card" id="opt-2-2" onclick="selectMCQ('aidGroup', this, '拐杖', 2)">
+                        <span class="mcq-icon">
+                            <svg viewBox="0 0 100 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M 30 30 C 30 15, 65 10, 75 30 L 75 42 L 58 42 L 58 175 C 58 178, 42 178, 42 175 L 42 30 Z" fill="#4a2c11"/>
+                                <rect x="40" y="42" width="20" height="8" rx="2" fill="#8c969e"/>
+                                <rect x="40" y="170" width="20" height="18" rx="4" fill="#2b2b2b"/>
+                            </svg>
+                        </span>
+                        <span class="mcq-text">拐杖</span>
+                    </div>
+                    <div class="mcq-card" id="opt-2-3" onclick="selectMCQ('aidGroup', this, '四腳叉', 2)">
+                        <span class="mcq-icon">
+                            <svg viewBox="0 0 100 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="35" y="20" width="30" height="14" rx="5" fill="#1a1a1a"/>
+                                <rect x="46" y="34" width="8" height="95" fill="#a0a5aa"/>
+                                <circle cx="50" cy="70" r="3" fill="#333"/>
+                                <circle cx="50" cy="105" r="5" fill="#222"/>
+                                <path d="M 50 120 L 25 175 M 50 120 L 40 175 M 50 120 L 60 175 M 50 120 L 75 175" stroke="#a0a5aa" stroke-width="6" stroke-linecap="round"/>
+                                <rect x="19" y="175" width="12" height="10" rx="3" fill="#111"/>
+                                <rect x="34" y="175" width="12" height="10" rx="3" fill="#111"/>
+                                <rect x="54" y="175" width="12" height="10" rx="3" fill="#111"/>
+                                <rect x="69" y="175" width="12" height="10" rx="3" fill="#111"/>
+                            </svg>
+                        </span>
+                        <span class="mcq-text">四腳叉</span>
+                    </div>
+                    <div class="mcq-card" id="opt-2-4" onclick="selectMCQ('aidGroup', this, '助行架', 2)">
+                        <span class="mcq-icon">
+                            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M 28 30 L 28 98 M 52 30 L 52 98 M 72 30 L 72 95 M 92 30 L 92 95" stroke="#8fa0ad" stroke-width="5" stroke-linecap="round"/>
+                                <rect x="22" y="24" width="12" height="8" rx="3" fill="#222"/>
+                                <rect x="66" y="24" width="32" height="8" rx="3" fill="#222"/>
+                                <line x1="28" y1="62" x2="52" y2="62" stroke="#8fa0ad" stroke-width="4"/>
+                                <line x1="72" y1="42" x2="92" y2="42" stroke="#2c3e50" stroke-width="5"/>
+                                <line x1="72" y1="56" x2="92" y2="56" stroke="#2c3e50" stroke-width="5"/>
+                                <rect x="24" y="98" width="8" height="8" rx="2" fill="#222"/>
+                                <rect x="48" y="98" width="8" height="8" rx="2" fill="#222"/>
+                                <circle cx="72" cy="98" r="7" fill="#4a5568" stroke="#1a202c" stroke-width="3"/>
+                                <circle cx="92" cy="98" r="7" fill="#4a5568" stroke="#1a202c" stroke-width="3"/>
+                            </svg>
+                        </span>
+                        <span class="mcq-text">助行架</span>
+                    </div>
+                    <div class="mcq-card" id="opt-2-5" onclick="selectMCQ('aidGroup', this, '輪椅', 2)">
+                        <span class="mcq-icon">♿</span>
+                        <span class="mcq-text">輪椅</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第二部分：FES-I 量表 (繁體中文 16 題標準版本) -->
+        <div class="card" id="fesiSectionCard">
+            <div class="card-title">第二部分：自評跌倒關注程度量表 (FES-I)</div>
+            <p style="margin-bottom: 20px; color: #495057; font-weight: 600;" id="fesiIntroText">我們現在要問一些關於你關注自身可能跌倒的問題，以下每項活動，請想若要是你做這個活動的時候，關注自己會因此跌倒的程度。若你現在沒有在做這項活動，請想像你若是現在要你做這項活動，關注跌倒的程度。</p>
+            
+            <div id="fesiQuestionsContainer">
+                <!-- 動態載入 FES-I 16 個項目 -->
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <button class="btn btn-primary" id="submitBtn" onclick="switchToSummary()">完成並提交治療師</button>
+        </div>
+
+    </div>
+
+    <!-- 治療師摘要頁面 -->
+    <div id="summaryView">
+        <div class="card">
+            <div class="card-title" style="color: #198754;">治療師摘要</div>
+            
+            <div class="summary-box">
+                <div class="summary-row">
+                    <span class="summary-label">居住狀況:</span>
+                    <span class="summary-val" id="sumLiveWith">未填寫</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">使用助行器:</span>
+                    <span class="summary-val" id="sumAid">未填寫</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">FES-I 總分 (16 - 64分):</span>
+                    <span class="summary-val" id="sumFesiScore" style="color: var(--primary);">16分</span>
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button class="btn btn-danger" onclick="clearAndReset()">清除回覆</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // 繁體中文 FES-I 標準 16 題項目[span_0](start_span)[span_0](end_span)
+    const fesiQuestionsData = [
+        "1. 家居清潔",
+        "2. 穿脫衣服",
+        "3. 煮飯",
+        "4. 洗澡、淋浴",
+        "5. 買東西、購物",
+        "6. 從椅子上站起來/坐下",
+        "7. 上/落樓梯",
+        "8. 在家附近行走",
+        "9. 拿高過頭頂/撿地上的東西",
+        "10. 趕接電話",
+        "11. 走在濕滑的地面上",
+        "12. 拜訪親友",
+        "13. 在人很擠的地方走",
+        "14. 走在崎嶇不平的路上(如保養不善或沒鋪砌之路面)",
+        "15. 上/落斜坡",
+        "16. 出去參加活動,如去活動中心、教會"
+    ];
+
+    const fesiScaleOptions = [
+        { score: 1, text: "(1) 不關注" },
+        { score: 2, text: "(2) 一點關注" },
+        { score: 3, text: "(3) 頗關注" },
+        { score: 4, text: "(4) 極度關注" }
+    ];
+
+    let fesiValues = new Array(fesiQuestionsData.length).fill(1);
+    let isSpeaking = false;
+    let selectedMaleVoice = null;
+    let currentStep = 1; // 1: Q1, 2: Q2, 3: FES-I Intro, 4..19: FES-I Items 1..16
+    let noResponseTimer = null;
+
+    // 尋找標準成熟男聲或亞洲男聲 (Asian Male Cantonese Voice)
+    function findMaleCantoneseVoice() {
+        const voices = speechSynthesis.getVoices();
+        return voices.find(v => 
+            (v.lang === 'zh-HK' || v.lang === 'yue-HK' || v.lang.includes('HK')) && 
+            (v.name.includes('Male') || v.name.includes('Danny') || v.name.includes('Sin-Ji') === false && v.name.includes('粵語'))
+        ) || voices.find(v => v.lang === 'zh-HK' || v.lang === 'yue-HK') || voices[0] || null;
+    }
+
+    function toggleVoiceGuide() {
+        if (!('speechSynthesis' in window)) return;
+        if (isSpeaking) {
+            stopVoiceGuide();
+        } else {
+            isSpeaking = true;
+            updateVoiceBtnUI(true);
+            readCurrentStep();
+        }
+    }
+
+    function stopVoiceGuide() {
+        clearNoResponseTimer();
+        speechSynthesis.cancel();
+        isSpeaking = false;
+        updateVoiceBtnUI(false);
+        clearAllFlashing();
+    }
+
+    function updateVoiceBtnUI(speaking) {
+        const btn = document.getElementById('voiceControlBtn');
+        document.getElementById('voiceIcon').textContent = speaking ? '⏹' : '🔊';
+        document.getElementById('voiceBtnText').textContent = speaking ? '停止導引' : '開始語音導引';
+        btn.className = speaking ? 'voice-master-btn speaking' : 'voice-master-btn';
+    }
+
+    function clearNoResponseTimer() {
+        if (noResponseTimer) {
+            clearTimeout(noResponseTimer);
+            noResponseTimer = null;
+        }
+    }
+
+    function resetNoResponseTimer() {
+        clearNoResponseTimer();
+        if (isSpeaking) {
+            noResponseTimer = setTimeout(() => {
+                if (isSpeaking) {
+                    readCurrentStep();
+                }
+            }, 6000); // 延長等待時間配合慢語速
+        }
+    }
+
+    function speakText(text, onEndCallback) {
+        clearNoResponseTimer();
+        speechSynthesis.cancel();
+        if (!isSpeaking) return;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        if (!selectedMaleVoice) selectedMaleVoice = findMaleCantoneseVoice();
+        if (selectedMaleVoice) utterance.voice = selectedMaleVoice;
+
+        utterance.lang = 'zh-HK';
+        utterance.rate = 0.78; // 調慢語速，方便長者聆聽
+        utterance.pitch = 0.95; // 模擬標準亞洲男聲音調
+
+        utterance.onend = function() {
+            if (onEndCallback) {
+                // 語句之間加入適當長度的自然停頓
+                setTimeout(onEndCallback, 600);
+            }
+        };
+
+        speechSynthesis.speak(utterance);
+    }
+
+    function speakOptionsSequentially(optionsArray, callback) {
+        let index = 0;
+
+        function nextOption() {
+            if (!isSpeaking || index >= optionsArray.length) {
+                clearAllFlashing();
+                if (callback) callback();
+                return;
+            }
+
+            const item = optionsArray[index];
+            clearAllFlashing();
+            if (item.element) item.element.classList.add('option-flashing');
+
+            speakText(item.text, () => {
+                index++;
+                setTimeout(nextOption, 400); // 選項之間的停頓
+            });
+        }
+
+        nextOption();
+    }
+
+    function readCurrentStep() {
+        if (!isSpeaking) return;
+
+        clearAllFlashing();
+        clearNoResponseTimer();
+
+        if (currentStep === 1) {
+            const qElement = document.getElementById('qBlock-1');
+            qElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            speakText("老友記，想問下你目前係自己一個人住，定抑或同屋企人、家傭或者喺院舍住呢？請喺下面揀選一個最合適嘅選項。", () => {
+                const options = [
+                    { element: document.getElementById('opt-1-1'), text: "獨居" },
+                    { element: document.getElementById('opt-1-2'), text: "與家人同住" },
+                    { element: document.getElementById('opt-1-3'), text: "與家傭同住" },
+                    { element: document.getElementById('opt-1-4'), text: "院舍居住" }
+                ];
+                speakOptionsSequentially(options, () => {
+                    document.getElementById('liveWithGroup').querySelectorAll('.mcq-card').forEach(c => c.classList.add('option-flashing'));
+                    resetNoResponseTimer();
+                });
+            });
+
+        } else if (currentStep === 2) {
+            const qElement = document.getElementById('qBlock-2');
+            qElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            speakText("跟住想了解一下，你平日出門口或者喺屋企行路嘅時候，需唔需要用到拐杖、四腳叉、助行架或者輪椅呢？", () => {
+                const options = [
+                    { element: document.getElementById('opt-2-1'), text: "不需助行器" },
+                    { element: document.getElementById('opt-2-2'), text: "拐杖" },
+                    { element: document.getElementById('opt-2-3'), text: "四腳叉" },
+                    { element: document.getElementById('opt-2-4'), text: "助行架" },
+                    { element: document.getElementById('opt-2-5'), text: "輪椅" }
+                ];
+                speakOptionsSequentially(options, () => {
+                    document.getElementById('aidGroup').querySelectorAll('.mcq-card').forEach(c => c.classList.add('option-flashing'));
+                    resetNoResponseTimer();
+                });
+            });
+
+        } else if (currentStep === 3) {
+            // Step 3: FES-I 量表簡介說明[span_1](start_span)[span_1](end_span)
+            const cardEl = document.getElementById('fesiSectionCard');
+            cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            speakText("第二部分係跌倒關注程度評估。我地而家想了解下你平時做一啲日常生活動作嗰陣，會唔會擔心自己會唔小心跌親。如果呢排冇做開嗰個動作都唔緊要，只要幻想下如果由你去做，你心入面有幾擔心就得喇。", () => {
+                currentStep = 4;
+                if (isSpeaking) readCurrentStep();
+            });
+
+        } else if (currentStep >= 4 && currentStep <= 19) {
+            const fesiIndex = currentStep - 4;
+            const itemElement = document.getElementById(`fesiItem-${fesiIndex}`);
+            
+            itemElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // 朗讀題目，然後順序朗讀 4 個選項並閃爍
+            speakText(fesiQuestionsData[fesiIndex], () => {
+                const options = [
+                    { element: document.getElementById(`fesi-opt-${fesiIndex}-1`), text: "不關注" },
+                    { element: document.getElementById(`fesi-opt-${fesiIndex}-2`), text: "一點關注" },
+                    { element: document.getElementById(`fesi-opt-${fesiIndex}-3`), text: "頗關注" },
+                    { element: document.getElementById(`fesi-opt-${fesiIndex}-4`), text: "極度關注" }
+                ];
+                speakOptionsSequentially(options, () => {
+                    document.getElementById(`fesiOptions-${fesiIndex}`).querySelectorAll('.fesi-opt-btn').forEach(btn => btn.classList.add('option-flashing'));
+                    resetNoResponseTimer();
+                });
+            });
+        }
+    }
+
+    function advanceStep(fromStep) {
+        clearNoResponseTimer();
+        speechSynthesis.cancel();
+
+        if (currentStep === fromStep) {
+            clearAllFlashing();
+            currentStep++;
+            if (isSpeaking) {
+                setTimeout(readCurrentStep, 400);
+            }
+        }
+    }
+
+    function selectMCQ(groupId, element, value, questionNum) {
+        const group = document.getElementById(groupId);
+        const cards = group.getElementsByClassName('mcq-card');
+        for (let card of cards) {
+            card.classList.remove('selected');
+        }
+        element.classList.add('selected');
+
+        advanceStep(questionNum);
+    }
+
+    function selectFesiOption(index, score, element) {
+        fesiValues[index] = score;
+        const group = document.getElementById(`fesiOptions-${index}`);
+        group.querySelectorAll('.fesi-opt-btn').forEach(btn => btn.classList.remove('selected'));
+        element.classList.add('selected');
+
+        advanceStep(index + 4);
+    }
+
+    function clearAllFlashing() {
+        document.querySelectorAll('.option-flashing').forEach(el => el.classList.remove('option-flashing'));
+    }
+
+    function initFesiItems() {
+        const container = document.getElementById('fesiQuestionsContainer');
+        container.innerHTML = '';
+
+        fesiQuestionsData.forEach((qText, index) => {
+            const item = document.createElement('div');
+            item.className = 'fesi-item';
+            item.id = `fesiItem-${index}`;
+            
+            let optionsHTML = '';
+            fesiScaleOptions.forEach(opt => {
+                optionsHTML += `<button type="button" class="fesi-opt-btn" id="fesi-opt-${index}-${opt.score}" onclick="selectFesiOption(${index}, ${opt.score}, this)">${opt.text}</button>`;
+            });
+
+            item.innerHTML = `
+                <div class="fesi-header">
+                    <span>${qText}</span>
+                </div>
+                <div class="fesi-options-grid" id="fesiOptions-${index}">
+                    ${optionsHTML}
+                </div>
+            `;
+            container.appendChild(item);
+        });
+
+        fesiValues.forEach((val, idx) => {
+            const defaultBtn = document.getElementById(`fesi-opt-${idx}-${val}`);
+            if (defaultBtn) defaultBtn.classList.add('selected');
+        });
+    }
+
+    function calculateFesiTotal() {
+        return fesiValues.reduce((a, b) => a + b, 0);
+    }
+
+    function setFontSize(size) {
+        let baseSize = '18px';
+        if (size === 'small') baseSize = '16px';
+        if (size === 'medium') baseSize = '20px';
+        if (size === 'large') baseSize = '24px';
+        
+        document.documentElement.style.setProperty('--font-size-base', baseSize);
+    }
+
+    function getSelectedMCQ(groupId) {
+        const group = document.getElementById(groupId);
+        const selected = group.querySelector('.mcq-card.selected');
+        return selected ? selected.querySelector('.mcq-text').textContent.trim() : '未選擇';
+    }
+
+    function switchToSummary() {
+        stopVoiceGuide();
+        const liveWith = getSelectedMCQ('liveWithGroup');
+        const aid = getSelectedMCQ('aidGroup');
+        const totalScore = calculateFesiTotal();
+
+        document.getElementById('sumLiveWith').textContent = liveWith;
+        document.getElementById('sumAid').textContent = aid;
+        document.getElementById('sumFesiScore').textContent = `${totalScore} 分 (16-64分)`;
+
+        document.getElementById('formView').style.display = 'none';
+        document.getElementById('summaryView').style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+
+    function clearAndReset() {
+        stopVoiceGuide();
+        currentStep = 1;
+        document.querySelectorAll('.mcq-card').forEach(card => card.classList.remove('selected'));
+        fesiValues.fill(1);
+        initFesiItems();
+
+        document.getElementById('summaryView').style.display = 'none';
+        document.getElementById('formView').style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+
+    if ('speechSynthesis' in window) {
+        speechSynthesis.onvoiceschanged = function() {
+            selectedMaleVoice = findMaleCantoneseVoice();
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', initFesiItems);
+</script>
+
+</body>
+</html>
